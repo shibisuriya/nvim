@@ -273,6 +273,8 @@ require('lazy').setup({
 -- See `:help vim.o`
 -- NOTE: You can change these options as you wish!
 
+vim.opt.relativenumber = true
+
 -- Set highlight on search
 vim.o.hlsearch = false
 
