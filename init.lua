@@ -44,6 +44,11 @@ P.S. You can delete this when you're done too. It's your config now :)
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
+
+-- disable netrw at the very start of your init.lua for nvim-tree.
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    https://github.com/folke/lazy.nvim
 --    `:help lazy.nvim.txt` for more info
@@ -68,6 +73,7 @@ vim.opt.rtp:prepend(lazypath)
 --    as they will be available in your neovim runtime.
 require('lazy').setup({
   -- NOTE: First, some plugins that don't require any configuration
+  'szw/vim-maximizer',
 
   -- Git related plugins
   'tpope/vim-fugitive',
@@ -75,7 +81,11 @@ require('lazy').setup({
 
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
-
+  {
+    'windwp/nvim-autopairs',
+    event = "InsertEnter",
+    opts = {} -- this is equalent to setup({}) function
+  },
   -- NOTE: This is where your plugins related to LSP can be installed.
   --  The configuration is done below. Search for lspconfig to find it below.
   {
@@ -88,13 +98,45 @@ require('lazy').setup({
 
       -- Useful status updates for LSP
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-      { 'j-hui/fidget.nvim', opts = {} },
+      { 'j-hui/fidget.nvim',       opts = {} },
 
       -- Additional lua configuration, makes nvim stuff amazing!
       'folke/neodev.nvim',
     },
   },
+  {
+    'nvim-tre/nvim-tree.lua',
+    opts = {
+      on_attach = function(bufnr)
+        local api = require "nvim-tree.api"
+        local function opts(desc)
+          return { desc = "nvim-tree: " .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
+        end
 
+        -- default mappings
+        api.config.mappings.default_on_attach(bufnr)
+
+        -- custom mappings
+        vim.keymap.set('n', '<C-t>', api.tree.change_root_to_parent, opts('Up'))
+        vim.keymap.set('n', '?', api.tree.toggle_help, opts('Help'))
+      end,
+      sort = {
+        sorter = "case_sensitive",
+      },
+      view = {
+        width = 50,
+        side = 'right',
+        number = true,
+        relativenumber = true,
+      },
+      renderer = {
+        group_empty = true,
+      },
+      filters = {
+        dotfiles = true,
+      },
+    },
+  },
   {
     -- Autocompletion
     'hrsh7th/nvim-cmp',
@@ -113,7 +155,7 @@ require('lazy').setup({
   },
 
   -- Useful plugin to show you pending keybinds.
-  { 'folke/which-key.nvim', opts = {} },
+  { 'folke/which-key.nvim',  opts = {} },
   {
     -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
@@ -191,10 +233,25 @@ require('lazy').setup({
 
   {
     -- Theme inspired by Atom
-    'navarasu/onedark.nvim',
+    "folke/tokyonight.nvim",
     priority = 1000,
     config = function()
-      vim.cmd.colorscheme 'onedark'
+      vim.cmd.colorscheme("tokyonight")
+
+      -- To make the color of the terminal transparent.
+      vim.api.nvim_set_hl(0, "NormalNc", {
+        bg = "none"
+      })
+
+      vim.api.nvim_set_hl(0, "Normal", {
+        bg = "none"
+      })
+
+      vim.api.nvim_set_hl(0, "NormalFloat", {
+        bg = "none"
+      })
+
+      vim.api.nvim_set_hl(0, 'LineNr', { fg = "darkgray" })
     end,
   },
 
@@ -253,6 +310,27 @@ require('lazy').setup({
     },
     build = ':TSUpdate',
   },
+  {
+    'ThePrimeagen/vim-be-good'
+  },
+  {
+    'christoomey/vim-tmux-navigator',
+    cmd = {
+      "TmuxNavigateLeft",
+      "TmuxNavigateDown",
+      "TmuxNavigateUp",
+      "TmuxNavigateRight",
+      "TmuxNavigatePrevious",
+    },
+    keys = {
+
+      { "<C-\\>", "<cmd>TmuxNavigatePrevious<cr>", desc = "Go to the previous pane" },
+      { "<C-h>",  "<cmd>TmuxNavigateLeft<cr>",     desc = "Got to the left pane" },
+      { "<C-j>",  "<cmd>TmuxNavigateDown<cr>",     desc = "Got to the down pane" },
+      { "<C-k>",  "<cmd>TmuxNavigateUp<cr>",       desc = "Got to the up pane" },
+      { "<C-l>",  "<cmd>TmuxNavigateRight<cr>",    desc = "Got to the right pane" },
+    },
+  }
 
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
   --       These are some example plugins that I've included in the kickstart repository.
@@ -352,6 +430,17 @@ require('telescope').setup {
   },
 }
 
+
+-- Working with tabs!
+vim.keymap.set("n", "J", ":tabnext<CR>")
+vim.keymap.set("n", "K", ":tabprev<CR>")
+vim.keymap.set("n", "<leader>tc", ":tabclose<CR>")
+vim.keymap.set("n", "<leader>tn", ":tabnew<CR>")
+
+-- Keys to create split windows.
+vim.keymap.set("n", "<leader>|", "<C-w>v") -- split window vertically. TODO: find a good key for this.
+vim.keymap.set("n", "<leader>-", "<C-w>s") -- split window horizontally. TODO: find a good key for this.
+
 -- Enable telescope fzf native, if installed
 pcall(require('telescope').load_extension, 'fzf')
 
@@ -398,7 +487,6 @@ vim.keymap.set('n', '<leader>/', function()
   -- You can pass additional configuration to telescope to change theme, layout, etc.
   require('telescope.builtin').current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
     winblend = 10,
-    previewer = false,
   })
 end, { desc = '[/] Fuzzily search in current buffer' })
 
@@ -411,10 +499,10 @@ end
 vim.keymap.set('n', '<leader>s/', telescope_live_grep_open_files, { desc = '[S]earch [/] in Open Files' })
 vim.keymap.set('n', '<leader>ss', require('telescope.builtin').builtin, { desc = '[S]earch [S]elect Telescope' })
 vim.keymap.set('n', '<leader>gf', require('telescope.builtin').git_files, { desc = 'Search [G]it [F]iles' })
-vim.keymap.set('n', '<leader>sf', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
+vim.keymap.set('n', '<leader>ff', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
 vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
 vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
-vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
+vim.keymap.set('n', '<leader>fg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
 vim.keymap.set('n', '<leader>sG', ':LiveGrepGitRoot<cr>', { desc = '[S]earch by [G]rep on Git Root' })
 vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
 vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = '[S]earch [R]esume' })
@@ -425,7 +513,8 @@ vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = 
 vim.defer_fn(function()
   require('nvim-treesitter.configs').setup {
     -- Add languages to be installed here that you want installed for treesitter
-    ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'vimdoc', 'vim', 'bash' },
+    ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'vimdoc', 'vim',
+      'bash' },
 
     -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
     auto_install = false,
@@ -521,8 +610,8 @@ local on_attach = function(_, bufnr)
   nmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
 
   -- See `:help K` for why this keymap
-  nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
-  nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
+  -- nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
+  -- nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
 
   -- Lesser used LSP functionality
   nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
@@ -664,5 +753,28 @@ cmp.setup {
   },
 }
 
--- The line beneath this is called `modeline`. See `:help modeline`
--- vim: ts=2 sts=2 sw=2 et
+
+-- Copy the relative path of the file present in the buffer into the clipboard.
+
+function copy_relative_path_to_clipboard()
+  local relative_path = vim.fn.expand('%')
+  vim.fn.system("echo " .. vim.fn.shellescape(relative_path) .. " | pbcopy")
+  vim.cmd('echo "Relative path copied to clipboard: ' .. relative_path .. '"')
+end
+
+vim.api.nvim_set_keymap('n', '<leader>cp', ':lua copy_relative_path_to_clipboard()<CR>',
+  { noremap = true, silent = true })
+
+
+
+-- Add this to your init.vim or init.lua file
+
+-- Function to copy the current line number to the system clipboard
+function CopyLineNumber()
+  local current_line = vim.fn.line('.')
+  vim.fn.setreg('+', current_line)
+  vim.api.nvim_out_write("Line " .. current_line .. " copied to clipboard\n")
+end
+
+-- Map the function to a key (in this example, F2)
+vim.api.nvim_set_keymap('n', '<leader>cl', '<Cmd>lua CopyLineNumber()<CR>', { noremap = true, silent = true })
