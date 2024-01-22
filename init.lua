@@ -124,19 +124,22 @@ require('lazy').setup({
         sorter = "case_sensitive",
       },
       view = {
-        width = 50,
+        width = 70,
         side = 'right',
         number = true,
         relativenumber = true,
       },
       renderer = {
+        indent_width = 6,
         group_empty = true,
       },
+      update_focused_file = { enable = true },
       filters = {
         dotfiles = true,
       },
     },
   },
+  'nvim-tree/nvim-web-devicons',
   {
     -- Autocompletion
     'hrsh7th/nvim-cmp',
@@ -778,3 +781,18 @@ end
 
 -- Map the function to a key (in this example, F2)
 vim.api.nvim_set_keymap('n', '<leader>cl', '<Cmd>lua CopyLineNumber()<CR>', { noremap = true, silent = true })
+
+
+vim.opt.cursorline = true
+vim.opt.iskeyword:append("-")
+
+local keymap = vim.keymap
+keymap.set('i', 'jk', "<ESC>")
+
+
+-- maximizer command.
+keymap.set("n", "<leader>sm", ":MaximizerToggle<CR>")
+
+
+
+keymap.set('n', '<leader>e', ":NvimTreeToggle<CR>")
