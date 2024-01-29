@@ -333,7 +333,21 @@ require('lazy').setup({
       { "<C-k>",  "<cmd>TmuxNavigateUp<cr>",       desc = "Got to the up pane" },
       { "<C-l>",  "<cmd>TmuxNavigateRight<cr>",    desc = "Got to the right pane" },
     },
-  }
+  },
+  {
+    'stevearc/conform.nvim',
+  },
+  {
+    'tzachar/local-highlight.nvim',
+    config = function()
+      require('local-highlight').setup({
+        insert_mode = true,
+        cw_hlgroup = 'LocalHighlight',
+      })
+    end
+  },
+
+
 
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
   --       These are some example plugins that I've included in the kickstart repository.
@@ -424,6 +438,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 -- See `:help telescope` and `:help telescope.setup()`
 require('telescope').setup {
   defaults = {
+    vimgrep_arguments = { '--multiline' },
     mappings = {
       i = {
         ['<C-u>'] = false,
@@ -435,8 +450,8 @@ require('telescope').setup {
 
 
 -- Working with tabs!
-vim.keymap.set("n", "J", ":tabnext<CR>")
-vim.keymap.set("n", "K", ":tabprev<CR>")
+vim.keymap.set("n", "<leader><tab>]", ":tabnext<CR>")
+vim.keymap.set("n", "<leader><tab>[", ":tabprev<CR>")
 vim.keymap.set("n", "<leader>tc", ":tabclose<CR>")
 vim.keymap.set("n", "<leader>tn", ":tabnew<CR>")
 
@@ -505,7 +520,13 @@ vim.keymap.set('n', '<leader>gf', require('telescope.builtin').git_files, { desc
 vim.keymap.set('n', '<leader>ff', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
 vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
 vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
-vim.keymap.set('n', '<leader>fg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
+vim.keymap.set('n', '<leader>fg', function()
+  require('telescope.builtin').live_grep({
+    additional_args = function()
+      return { "--multiline" }
+    end
+  })
+end, { desc = '[S]earch by [G]rep' })
 vim.keymap.set('n', '<leader>sG', ':LiveGrepGitRoot<cr>', { desc = '[S]earch by [G]rep on Git Root' })
 vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
 vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = '[S]earch [R]esume' })
@@ -796,3 +817,110 @@ keymap.set("n", "<leader>sm", ":MaximizerToggle<CR>")
 
 
 keymap.set('n', '<leader>e', ":NvimTreeToggle<CR>")
+
+
+
+require("conform").setup({
+  -- Map of filetype to formatters
+  formatters_by_ft = {
+    lua = { "stylua" },
+    -- Conform will run multiple formatters sequentially
+    go = { "goimports", "gofmt" },
+    -- Use a sub-list to run only the first available formatter
+    javascript = { { "prettierd", "prettier" } },
+    javascriptreact = { { 'prettier', 'prettierd' } },
+    css = { { 'prettier', 'prettierd' } },
+
+    -- You can use a function here to determine the formatters dynamically
+    python = function(bufnr)
+      if require("conform").get_formatter_info("ruff_format", bufnr).available then
+        return { "ruff_format" }
+      else
+        return { "isort", "black" }
+      end
+    end,
+    -- Use the "*" filetype to run formatters on all filetypes.
+    ["*"] = { "codespell" },
+    -- Use the "_" filetype to run formatters on filetypes that don't
+    -- have other formatters configured.
+    ["_"] = { "trim_whitespace" },
+  },
+  -- If this is set, Conform will run the formatter on save.
+  -- It will pass the table to conform.format().
+  -- This can also be a function that returns the table.
+  format_on_save = {
+    -- I recommend these options. See :help conform.format for details.
+    lsp_fallback = true,
+    timeout_ms = 500,
+  },
+  -- If this is set, Conform will run the formatter asynchronously after save.
+  -- It will pass the table to conform.format().
+  -- This can also be a function that returns the table.
+  format_after_save = {
+    lsp_fallback = true,
+  },
+  -- Set the log level. Use `:ConformInfo` to see the location of the log file.
+  log_level = vim.log.levels.ERROR,
+  -- Conform will notify you when a formatter errors
+  notify_on_error = true,
+  -- Custom formatters and changes to built-in formatters
+  formatters = {
+    my_formatter = {
+      -- This can be a string or a function that returns a string.
+      -- When defining a new formatter, this is the only field that is *required*
+      command = "my_cmd",
+      -- A list of strings, or a function that returns a list of strings
+      -- Return a single string instead of a list to run the command in a shell
+      args = { "--stdin-from-filename", "$FILENAME" },
+      -- If the formatter supports range formatting, create the range arguments here
+      range_args = function(ctx)
+        return { "--line-start", ctx.range.start[1], "--line-end", ctx.range["end"][1] }
+      end,
+      -- Send file contents to stdin, read new contents from stdout (default true)
+      -- When false, will create a temp file (will appear in "$FILENAME" args). The temp
+      -- file is assumed to be modified in-place by the format command.
+      stdin = true,
+      -- A function that calculates the directory to run the command in
+      cwd = require("conform.util").root_file({ ".prettierrc", "package.json" }),
+      -- When cwd is not found, don't run the formatter (default false)
+      require_cwd = true,
+      -- When returns false, the formatter will not be used
+      condition = function(ctx)
+        return vim.fs.basename(ctx.filename) ~= "README.md"
+      end,
+      -- Exit codes that indicate success (default { 0 })
+      exit_codes = { 0, 1 },
+      -- Environment variables. This can also be a function that returns a table.
+      env = {
+        VAR = "value",
+      },
+      -- Set to false to disable merging the config with the base definition
+      inherit = true,
+      -- When inherit = true, add these additional arguments to the command.
+      -- This can also be a function, like args
+      prepend_args = { "--use-tabs" },
+    },
+    -- These can also be a function that returns the formatter
+    other_formatter = function(bufnr)
+      return {
+        command = "my_cmd",
+      }
+    end,
+  },
+})
+
+
+vim.keymap.set({ "n", "v" }, "<leader>cf", function()
+  local conform = require('conform')
+  conform.format({
+    lsp_fallback = true,
+    async = false,
+    timeout_ms = 500
+  })
+end, { desc = "Format file or range in (visual mode)" })
+
+
+vim.cmd('hi LocalHighlight ctermfg=white ctermbg=blue guifg=white guibg=blue') -- For the plugin local-highlight
+vim.cmd('hi DiffAdd guibg=#d2ebbe guifg=#333333 ctermbg=none')
+vim.cmd('hi DiffText guibg=skyblue guifg=#333333 ctermbg=none ctermfg=none')
+vim.cmd('hi DiffDelete guibg=#f0a0c0 guifg=#333333 ctermbg=none')
