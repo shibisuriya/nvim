@@ -150,11 +150,6 @@ require('lazy').setup({
         indent_width = 6,
         group_empty = false,
       },
-      ui = {
-        confirm = {
-          remove = false -- This is dangerous if you are not working in a git directory...
-        }
-      },
       update_focused_file = { enable = true },
       filters = {
         dotfiles = true,
