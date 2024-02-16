@@ -119,6 +119,23 @@ require('lazy').setup({
         -- custom mappings
         vim.keymap.set('n', '<C-t>', api.tree.change_root_to_parent, opts('Up'))
         vim.keymap.set('n', '?', api.tree.toggle_help, opts('Help'))
+        vim.keymap.set('n', 'h', api.tree.toggle_hidden_filter, opts('How dot files'))
+
+        local function get_absolute_path()
+          local node = api.tree.get_node_under_cursor()
+          local file_type = node.type
+          if file_type == 'file' then
+            return node.parent.absolute_path
+          elseif file_type == 'directory' then
+            return node.absolute_path
+          end
+          error("No node found under the cursor.")
+        end
+
+        vim.keymap.set('n', '|', function()
+          local absolute_path = get_absolute_path()
+          vim.fn.system('tmux split-window -h -c ' .. absolute_path)
+        end, opts("Open a vertical tmux pane to the right in the file under cursor's path."))
       end,
       sort = {
         sorter = "case_sensitive",
@@ -131,7 +148,12 @@ require('lazy').setup({
       },
       renderer = {
         indent_width = 6,
-        group_empty = true,
+        group_empty = false,
+      },
+      ui = {
+        confirm = {
+          remove = false -- This is dangerous if you are not working in a git directory...
+        }
       },
       update_focused_file = { enable = true },
       filters = {
@@ -238,8 +260,8 @@ require('lazy').setup({
     -- Theme inspired by Atom
     "folke/tokyonight.nvim",
     priority = 1000,
-    config = function()
-      vim.cmd.colorscheme("tokyonight")
+    config = function(opts)
+      vim.cmd.colorscheme("tokyonight-moon")
 
       -- To make the color of the terminal transparent.
       vim.api.nvim_set_hl(0, "NormalNc", {
@@ -271,7 +293,9 @@ require('lazy').setup({
       },
     },
   },
-
+  {
+    "ggandor/leap.nvim"
+  },
   {
     -- Add indentation guides even on blank lines
     'lukas-reineke/indent-blankline.nvim',
@@ -452,8 +476,8 @@ require('telescope').setup {
 -- Working with tabs!
 vim.keymap.set("n", "<leader><tab>]", ":tabnext<CR>")
 vim.keymap.set("n", "<leader><tab>[", ":tabprev<CR>")
-vim.keymap.set("n", "<leader>tc", ":tabclose<CR>")
-vim.keymap.set("n", "<leader>tn", ":tabnew<CR>")
+vim.keymap.set("n", "<leader><tab>d", ":tabclose<CR>")
+vim.keymap.set("n", "<leader><tab><tab>", ":tabnew<CR>")
 
 -- Keys to create split windows.
 vim.keymap.set("n", "<leader>|", "<C-w>v") -- split window vertically. TODO: find a good key for this.
@@ -537,8 +561,8 @@ vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = 
 vim.defer_fn(function()
   require('nvim-treesitter.configs').setup {
     -- Add languages to be installed here that you want installed for treesitter
-    ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'vimdoc', 'vim',
-      'bash' },
+    ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'vimdoc', 'vim', 'groovy',
+      'bash', 'markdown' },
 
     -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
     auto_install = false,
@@ -805,7 +829,6 @@ vim.api.nvim_set_keymap('n', '<leader>cl', '<Cmd>lua CopyLineNumber()<CR>', { no
 
 
 vim.opt.cursorline = true
-vim.opt.iskeyword:append("-")
 
 local keymap = vim.keymap
 keymap.set('i', 'jk', "<ESC>")
@@ -924,3 +947,10 @@ vim.cmd('hi LocalHighlight ctermfg=white ctermbg=blue guifg=white guibg=blue') -
 vim.cmd('hi DiffAdd guibg=#d2ebbe guifg=#333333 ctermbg=none')
 vim.cmd('hi DiffText guibg=skyblue guifg=#333333 ctermbg=none ctermfg=none')
 vim.cmd('hi DiffDelete guibg=#f0a0c0 guifg=#333333 ctermbg=none')
+
+vim.g.tmux_navigator_disable_when_zoomed = 1 -- Prevents tmux from getting out of zoomed in mode when put in zoomed in mode explicitly...
+
+vim.api.nvim_set_keymap('n', '<leader>gg', ':tabnew | G<CR>', { noremap = true, silent = true })
+
+vim.api.nvim_set_keymap('n', '<leader>dv', ':tab  Gvdiffsplit<CR>', { noremap = true, silent = true })
+require('leap').create_default_mappings()
