@@ -105,7 +105,7 @@ require('lazy').setup({
     },
   },
   {
-    'nvim-tre/nvim-tree.lua',
+    'nvim-tree/nvim-tree.lua',
     opts = {
       on_attach = function(bufnr)
         local api = require "nvim-tree.api"
@@ -256,7 +256,7 @@ require('lazy').setup({
     "folke/tokyonight.nvim",
     priority = 1000,
     config = function(opts)
-      vim.cmd.colorscheme("tokyonight-moon")
+      vim.cmd.colorscheme("tokyonight")
 
       -- To make the color of the terminal transparent.
       vim.api.nvim_set_hl(0, "NormalNc", {
@@ -557,7 +557,7 @@ vim.defer_fn(function()
   require('nvim-treesitter.configs').setup {
     -- Add languages to be installed here that you want installed for treesitter
     ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'vimdoc', 'vim', 'groovy',
-      'bash', 'markdown' },
+      'bash', 'markdown', 'markdown_inline' },
 
     -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
     auto_install = false,
@@ -702,12 +702,18 @@ require('mason-lspconfig').setup()
 --  If you want to override the default filetypes that your language server will attach to you can
 --  define the property 'filetypes' to the map in question.
 local servers = {
+  prettierd = {},
+  prettier = {},
+  cssls = {},
+  cssmodules_ls = {},
+  eslint = {},
+  tsserver = {},
   -- clangd = {},
   -- gopls = {},
   -- pyright = {},
   -- rust_analyzer = {},
   -- tsserver = {},
-  -- html = { filetypes = { 'html', 'twig', 'hbs'} },
+  html = { filetypes = { 'html', 'twig', 'hbs' } },
 
   lua_ls = {
     Lua = {
@@ -848,6 +854,7 @@ require("conform").setup({
     javascript = { { "prettierd", "prettier" } },
     javascriptreact = { { 'prettier', 'prettierd' } },
     css = { { 'prettier', 'prettierd' } },
+    markdown = { { 'prettier', 'prettierd' } },
 
     -- You can use a function here to determine the formatters dynamically
     python = function(bufnr)
