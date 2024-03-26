@@ -706,8 +706,11 @@ local servers = {
   prettier = {},
   cssls = {},
   cssmodules_ls = {},
-  eslint = {},
   tsserver = {},
+  ruff = {},
+  isort = {},
+  black = {},
+
   -- clangd = {},
   -- gopls = {},
   -- pyright = {},
