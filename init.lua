@@ -181,13 +181,15 @@ require('lazy').setup({
     'lewis6991/gitsigns.nvim',
     opts = {
       -- See `:help gitsigns.txt`
-      signs = {
+      signs     = {
         add = { text = '+' },
         change = { text = '~' },
         delete = { text = '_' },
         topdelete = { text = '‾' },
         changedelete = { text = '~' },
       },
+      linehl    = true, -- Highlights lines that have changed in normal buffer itself.
+      word_diff = true, -- Highlights changed word in the normal buffer itself.
       on_attach = function(bufnr)
         local gs = package.loaded.gitsigns
 
