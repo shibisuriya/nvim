@@ -113,13 +113,18 @@ require('lazy').setup({
           return { desc = "nvim-tree: " .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
         end
 
-        -- default mappings
-        api.config.mappings.default_on_attach(bufnr)
-
         -- custom mappings
-        vim.keymap.set('n', '<C-t>', api.tree.change_root_to_parent, opts('Up'))
         vim.keymap.set('n', '?', api.tree.toggle_help, opts('Help'))
-        vim.keymap.set('n', 'h', api.tree.toggle_hidden_filter, opts('How dot files'))
+        vim.keymap.set('n', 'y', api.fs.copy.node, opts('Copy'))
+        vim.keymap.set('n', 'l', api.node.open.edit, opts('Open'))
+        vim.keymap.set('n', '<CR>', api.node.open.edit, opts('Open'))
+        vim.keymap.set('n', 'h', api.node.navigate.parent_close, opts('Close Directory'))
+        vim.keymap.set('n', 'a', api.fs.create, opts('Create File Or Directory'))
+        vim.keymap.set('n', '<C-k>', api.node.show_info_popup, opts('Info'))
+        vim.keymap.set('n', 'E', api.tree.expand_all, opts('Expand All'))
+        vim.keymap.set('n', 'd', api.fs.remove, opts('Delete'))
+        vim.keymap.set('n', 'x', api.fs.cut, opts('Cut'))
+        vim.keymap.set('n', 'p', api.fs.paste, opts('Paste'))
 
         local function get_absolute_path()
           local node = api.tree.get_node_under_cursor()
@@ -140,6 +145,9 @@ require('lazy').setup({
       sort = {
         sorter = "case_sensitive",
       },
+      git = {
+        enable = false
+      },
       view = {
         width = 70,
         side = 'right',
@@ -147,12 +155,13 @@ require('lazy').setup({
         relativenumber = true,
       },
       renderer = {
-        indent_width = 6,
+        indent_width = 5,
         group_empty = false,
+        root_folder_label = false,
       },
       update_focused_file = { enable = true },
       filters = {
-        dotfiles = true,
+        dotfiles = false,
       },
     },
   },
@@ -367,6 +376,18 @@ require('lazy').setup({
 -- NOTE: You can change these options as you wish!
 
 vim.opt.relativenumber = true
+
+-- Define function to toggle relative line numbers
+function _G.toggle_relative_numbers()
+  if vim.wo.relativenumber then
+    vim.wo.relativenumber = false
+  else
+    vim.wo.relativenumber = true
+  end
+end
+
+-- Command to call the function
+vim.cmd([[command! ToggleRelativeNumbers lua toggle_relative_numbers()]])
 
 -- Set highlight on search
 vim.o.hlsearch = true
@@ -835,6 +856,7 @@ require("conform").setup({
     javascriptreact = { { 'prettier', 'prettierd' } },
     css = { { 'prettier', 'prettierd' } },
     markdown = { { 'prettier', 'prettierd' } },
+    json = { { 'prettier', 'prettierd' } },
 
     -- You can use a function here to determine the formatters dynamically
     python = function(bufnr)
