@@ -125,6 +125,7 @@ require('lazy').setup({
         vim.keymap.set('n', 'd', api.fs.remove, opts('Delete'))
         vim.keymap.set('n', 'x', api.fs.cut, opts('Cut'))
         vim.keymap.set('n', 'p', api.fs.paste, opts('Paste'))
+        vim.keymap.set('n', 'r', api.fs.rename, opts('Rename'))
 
         local function get_absolute_path()
           local node = api.tree.get_node_under_cursor()
