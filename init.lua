@@ -199,8 +199,8 @@ require('lazy').setup({
         topdelete = { text = '‾' },
         changedelete = { text = '~' },
       },
-      linehl    = true, -- Highlights lines that have changed in normal buffer itself.
-      word_diff = true, -- Highlights changed word in the normal buffer itself.
+      -- linehl    = true, -- Highlights lines that have changed in normal buffer itself.
+      -- word_diff = true, -- Highlights changed word in the normal buffer itself.
       on_attach = function(bufnr)
         local gs = package.loaded.gitsigns
 
@@ -459,7 +459,6 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 -- See `:help telescope` and `:help telescope.setup()`
 require('telescope').setup {
   defaults = {
-    vimgrep_arguments = { '--multiline' },
     mappings = {
       i = {
         ['<C-u>'] = false,
@@ -542,11 +541,7 @@ vim.keymap.set('n', '<leader>ff', require('telescope.builtin').find_files, { des
 vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
 vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
 vim.keymap.set('n', '<leader>fg', function()
-  require('telescope.builtin').live_grep({
-    additional_args = function()
-      return { "--multiline" }
-    end
-  })
+  require('telescope.builtin').live_grep({})
 end, { desc = '[S]earch by [G]rep' })
 vim.keymap.set('n', '<leader>sG', ':LiveGrepGitRoot<cr>', { desc = '[S]earch by [G]rep on Git Root' })
 vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
@@ -839,7 +834,7 @@ keymap.set('i', 'jk', "<ESC>")
 
 
 -- maximizer command.
-keymap.set("n", "<leader>sm", ":MaximizerToggle<CR>")
+keymap.set("n", "<leader>m", ":MaximizerToggle<CR>")
 
 
 
@@ -880,7 +875,7 @@ require("conform").setup({
   format_on_save = {
     -- I recommend these options. See :help conform.format for details.
     lsp_fallback = true,
-    timeout_ms = 500,
+    timeout_ms = 3000,
   },
   -- If this is set, Conform will run the formatter asynchronously after save.
   -- It will pass the table to conform.format().
@@ -950,9 +945,9 @@ end, { desc = "Format file or range in (visual mode)" })
 
 
 vim.cmd('hi LocalHighlight ctermfg=white ctermbg=blue guifg=white guibg=blue') -- For the plugin local-highlight
-vim.cmd('hi DiffAdd guibg=#d2ebbe guifg=#333333 ctermbg=none')
-vim.cmd('hi DiffText guibg=skyblue guifg=#333333 ctermbg=none ctermfg=none')
-vim.cmd('hi DiffDelete guibg=#f0a0c0 guifg=#333333 ctermbg=none')
+-- vim.cmd('hi DiffAdd guibg=#d2ebbe guifg=#333333 ctermbg=none')
+-- vim.cmd('hi DiffText guibg=skyblue guifg=#333333 ctermbg=none ctermfg=none')
+-- vim.cmd('hi DiffDelete guibg=#f0a0c0 guifg=#333333 ctermbg=none')
 
 vim.g.tmux_navigator_disable_when_zoomed = 1 -- Prevents tmux from getting out of zoomed in mode when put in zoomed in mode explicitly...
 
