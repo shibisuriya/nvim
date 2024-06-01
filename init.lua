@@ -978,7 +978,6 @@ vim.keymap.set({ "n", "v" }, "<leader>cf", function()
 end, { desc = "Format file or range in (visual mode)" })
 
 
-vim.cmd('hi LocalHighlight ctermfg=white ctermbg=blue guifg=white guibg=blue') -- For the plugin local-highlight
 -- vim.cmd('hi DiffAdd guibg=#d2ebbe guifg=#333333 ctermbg=none')
 -- vim.cmd('hi DiffText guibg=skyblue guifg=#333333 ctermbg=none ctermfg=none')
 -- vim.cmd('hi DiffDelete guibg=#f0a0c0 guifg=#333333 ctermbg=none')
@@ -1042,6 +1041,9 @@ require("rose-pine").setup({
   highlight_groups = {
     -- Comment = { fg = "foam" },
     -- VertSplit = { fg = "muted", bg = "muted" },
+    Search = { bg = "muted", fg = "auto" },
+    CurSearch = { bg = "muted", fg = "auto" },
+    LocalHighlight = { bg = "muted", fg = "auto" }
   },
 
   before_highlight = function(group, highlight, palette)
