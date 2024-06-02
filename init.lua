@@ -1061,3 +1061,5 @@ require("rose-pine").setup({
 
 vim.cmd("colorscheme rose-pine")
 vim.opt.conceallevel = 1
+
+vim.api.nvim_set_keymap('n', '<leader>qq', ':qa!<CR>', { noremap = true, silent = true })
