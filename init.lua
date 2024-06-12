@@ -226,16 +226,19 @@ require('lazy').setup({
     'lewis6991/gitsigns.nvim',
     opts = {
       -- See `:help gitsigns.txt`
-      signs     = {
+      signs                   = {
         add = { text = '+' },
         change = { text = '~' },
         delete = { text = '_' },
         topdelete = { text = '‾' },
         changedelete = { text = '~' },
       },
+      current_line_blame_opts = {
+        delay = 0,
+      },
       -- linehl    = true, -- Highlights lines that have changed in normal buffer itself.
       -- word_diff = true, -- Highlights changed word in the normal buffer itself.
-      on_attach = function(bufnr)
+      on_attach               = function(bufnr)
         local gs = package.loaded.gitsigns
 
         local function map(mode, l, r, opts)
@@ -888,6 +891,7 @@ require("conform").setup({
     css = { { 'prettier', 'prettierd' } },
     markdown = { { 'prettier', 'prettierd' } },
     json = { { 'prettier', 'prettierd' } },
+    vue = { { 'prettier', 'prettierd' } },
 
     -- You can use a function here to determine the formatters dynamically
     python = function(bufnr)
