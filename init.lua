@@ -247,6 +247,18 @@ require('lazy').setup({
   -- Useful plugin to show you pending keybinds.
   { 'folke/which-key.nvim', opts = {} },
   {
+    'NeogitOrg/neogit',
+    dependencies = {
+      'nvim-lua/plenary.nvim', -- required
+      'sindrets/diffview.nvim', -- optional - Diff integration
+
+      -- Only one of these is needed, not both.
+      'nvim-telescope/telescope.nvim', -- optional
+      'ibhagwan/fzf-lua', -- optional
+    },
+    config = true,
+  },
+  {
     -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
     opts = {
@@ -778,7 +790,6 @@ local servers = {
   cssls = {},
   cssmodules_ls = {},
   tsserver = {},
-  eslint = {},
   stylelint_lsp = {},
 
   -- clangd = {},
@@ -938,17 +949,16 @@ require('conform').setup {
   -- If this is set, Conform will run the formatter on save.
   -- It will pass the table to conform.format().
   -- This can also be a function that returns the table.
-  format_on_save = {
-    -- I recommend these options. See :help conform.format for details.
-    lsp_fallback = true,
-    timeout_ms = 3000,
-  },
+  format_on_save = function(bufnr)
+    -- Disable with a global or buffer-local variable
+    if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
+      return
+    end
+    return { timeout_ms = 500, lsp_format = 'fallback' }
+  end,
   -- If this is set, Conform will run the formatter asynchronously after save.
   -- It will pass the table to conform.format().
   -- This can also be a function that returns the table.
-  format_after_save = {
-    lsp_fallback = true,
-  },
   -- Set the log level. Use `:ConformInfo` to see the location of the log file.
   log_level = vim.log.levels.ERROR,
   -- Conform will notify you when a formatter errors
@@ -999,7 +1009,7 @@ require('conform').setup {
   },
 }
 
-vim.keymap.set({ 'n', 'v' }, '<leader>cf', function()
+vim.keymap.set({ 'n', 'v' }, '<leader>lf', function()
   local conform = require 'conform'
   conform.format {
     lsp_fallback = true,
@@ -1014,7 +1024,7 @@ end, { desc = 'Format file or range in (visual mode)' })
 
 vim.g.tmux_navigator_disable_when_zoomed = 1 -- Prevents tmux from getting out of zoomed in mode when put in zoomed in mode explicitly...
 
-vim.api.nvim_set_keymap('n', '<leader>gg', ':tabnew | G<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<leader>gg', ':DiffviewOpen<CR>', { noremap = true, silent = true })
 
 vim.api.nvim_set_keymap('n', '<leader>dv', ':tab  Gvdiffsplit<CR>', { noremap = true, silent = true })
 require('leap').create_default_mappings()
@@ -1050,9 +1060,9 @@ require('rose-pine').setup {
     warn = 'gold',
 
     git_add = 'foam',
-    git_change = 'rose',
+    git_change = 'iris',
     git_delete = 'love',
-    git_dirty = 'rose',
+    git_dirty = 'iris',
     git_ignore = 'muted',
     git_merge = 'iris',
     git_rename = 'pine',
@@ -1071,7 +1081,7 @@ require('rose-pine').setup {
   highlight_groups = {
     -- Comment = { fg = "foam" },
     -- VertSplit = { fg = "muted", bg = "muted" },
-    Search = { bg = 'muted', fg = 'auto' },
+    Search = { bg = 'gold', fg = 'black' },
     CurSearch = { bg = 'muted', fg = 'auto' },
     LocalHighlight = { bg = 'muted', fg = 'auto' },
   },
@@ -1092,4 +1102,26 @@ require('rose-pine').setup {
 vim.cmd 'colorscheme rose-pine'
 vim.opt.conceallevel = 1
 
+vim.o.incsearch = true
+
 vim.api.nvim_set_keymap('n', '<leader>qq', ':qa!<CR>', { noremap = true, silent = true })
+
+-- Autocommands to enable / disable `format on save`.
+vim.api.nvim_create_user_command('FormatDisable', function(args)
+  if args.bang then
+    -- FormatDisable! will disable formatting just for this buffer
+    vim.b.disable_autoformat = true
+  else
+    vim.g.disable_autoformat = true
+  end
+end, {
+  desc = 'Disable autoformat-on-save',
+  bang = true,
+})
+
+vim.api.nvim_create_user_command('FormatEnable', function()
+  vim.b.disable_autoformat = false
+  vim.g.disable_autoformat = false
+end, {
+  desc = 'Re-enable autoformat-on-save',
+})
