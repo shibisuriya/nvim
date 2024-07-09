@@ -339,19 +339,6 @@ require('lazy').setup({
   },
   { 'rose-pine/neovim', name = 'rose-pine' },
   {
-    -- Set lualine as statusline
-    'nvim-lualine/lualine.nvim',
-    -- See `:help lualine.txt`
-    opts = {
-      options = {
-        icons_enabled = false,
-        theme = 'onedark',
-        component_separators = '|',
-        section_separators = '',
-      },
-    },
-  },
-  {
     'ggandor/leap.nvim',
   },
   -- Removing guides since it tends to clutter my screen.
@@ -1125,3 +1112,5 @@ vim.api.nvim_create_user_command('FormatEnable', function()
 end, {
   desc = 'Re-enable autoformat-on-save',
 })
+
+vim.o.laststatus = 0
