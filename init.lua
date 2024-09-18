@@ -1114,3 +1114,15 @@ end, {
 })
 
 vim.o.laststatus = 0
+local highlight_on = true
+
+vim.keymap.set('n', '<leader>ho', function()
+  if highlight_on then
+    vim.cmd 'nohls' -- Turns off search highlight
+    vim.cmd 'LocalHighlightOff' -- Turns off local highlight (assuming a plugin)
+  else
+    vim.cmd 'set hlsearch' -- Turns on search highlight
+    vim.cmd 'LocalHighlightOn' -- Turns on local highlight (if your plugin supports this)
+  end
+  highlight_on = not highlight_on -- Toggle the state
+end, { noremap = true, silent = true })
