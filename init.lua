@@ -210,7 +210,7 @@ require('lazy').setup({
         enable = false,
       },
       view = {
-        width = 70,
+        width = 100,
         side = 'right',
         number = true,
         relativenumber = true,
@@ -337,7 +337,7 @@ require('lazy').setup({
       end,
     },
   },
-  { 'rose-pine/neovim', name = 'rose-pine' },
+  { 'rebelot/kanagawa.nvim' },
   {
     'ggandor/leap.nvim',
   },
@@ -352,8 +352,17 @@ require('lazy').setup({
   -- },
 
   -- "gc" to comment visual regions/lines
-  { 'numToStr/Comment.nvim', opts = {} },
-
+  {
+    'numToStr/Comment.nvim',
+    opts = {
+      opleader = {
+        ---Line-comment keymap
+        line = '<leader>/',
+        ---Block-comment keymap
+        block = 'gb',
+      },
+    },
+  },
   -- Fuzzy Finder (files, lsp, etc)
   {
     'nvim-telescope/telescope.nvim',
@@ -579,12 +588,12 @@ vim.api.nvim_create_user_command('LiveGrepGitRoot', live_grep_git_root, {})
 -- See `:help telescope.builtin`
 vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
 vim.keymap.set('n', '<leader><space>', require('telescope.builtin').buffers, { desc = '[ ] Find existing buffers' })
-vim.keymap.set('n', '<leader>/', function()
-  -- You can pass additional configuration to telescope to change theme, layout, etc.
-  require('telescope.builtin').current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
-    winblend = 10,
-  })
-end, { desc = '[/] Fuzzily search in current buffer' })
+-- vim.keymap.set('n', '<leader>/', function()
+--   -- You can pass additional configuration to telescope to change theme, layout, etc.
+--   require('telescope.builtin').current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
+--     winblend = 10,
+--   })
+-- end, { desc = '[/] Fuzzily search in current buffer' })
 
 local function telescope_live_grep_open_files()
   require('telescope.builtin').live_grep {
@@ -778,6 +787,7 @@ local servers = {
   cssmodules_ls = {},
   tsserver = {},
   stylelint_lsp = {},
+  clang_format = {},
 
   -- clangd = {},
   -- gopls = {},
@@ -918,6 +928,7 @@ require('conform').setup {
     markdown = { { 'prettier', 'prettierd' } },
     json = { { 'prettier', 'prettierd' } },
     vue = { { 'prettier', 'prettierd' } },
+    cpp = { 'clang_format' },
 
     -- You can use a function here to determine the formatters dynamically
     python = function(bufnr)
@@ -941,7 +952,7 @@ require('conform').setup {
     if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
       return
     end
-    return { timeout_ms = 500, lsp_format = 'fallback' }
+    return { timeout_ms = 3000, lsp_format = 'fallback' }
   end,
   -- If this is set, Conform will run the formatter asynchronously after save.
   -- It will pass the table to conform.format().
@@ -1001,7 +1012,7 @@ vim.keymap.set({ 'n', 'v' }, '<leader>lf', function()
   conform.format {
     lsp_fallback = true,
     async = false,
-    timeout_ms = 500,
+    timeout_ms = 5000,
   }
 end, { desc = 'Format file or range in (visual mode)' })
 
@@ -1016,77 +1027,33 @@ vim.api.nvim_set_keymap('n', '<leader>gg', ':DiffviewOpen<CR>', { noremap = true
 vim.api.nvim_set_keymap('n', '<leader>dv', ':tab  Gvdiffsplit<CR>', { noremap = true, silent = true })
 require('leap').create_default_mappings()
 
-require('rose-pine').setup {
-  variant = 'auto', -- auto, main, moon, or dawn
-  dark_variant = 'moon', -- main, moon, or dawn
-  dim_inactive_windows = false,
-  extend_background_behind_borders = true,
-
-  enable = {
-    terminal = true,
-    legacy_highlights = true, -- Improve compatibility for previous versions of Neovim
-    migrations = true, -- Handle deprecated options automatically
+require('kanagawa').setup {
+  compile = false, -- enable compiling the colorscheme
+  undercurl = true, -- enable undercurls
+  commentStyle = { italic = true },
+  functionStyle = {},
+  keywordStyle = { italic = true },
+  statementStyle = { bold = true },
+  typeStyle = {},
+  transparent = false, -- do not set background color
+  dimInactive = false, -- dim inactive window `:h hl-NormalNC`
+  terminalColors = true, -- define vim.g.terminal_color_{0,17}
+  colors = { -- add/modify theme and palette colors
+    palette = {},
+    theme = { wave = {}, lotus = {}, dragon = {}, all = {} },
   },
-
-  styles = {
-    bold = true,
-    italic = true,
-    transparency = true,
-  },
-
-  groups = {
-    border = 'muted',
-    link = 'iris',
-    panel = 'surface',
-
-    error = 'love',
-    hint = 'iris',
-    info = 'foam',
-    note = 'pine',
-    todo = 'rose',
-    warn = 'gold',
-
-    git_add = 'foam',
-    git_change = 'iris',
-    git_delete = 'love',
-    git_dirty = 'iris',
-    git_ignore = 'muted',
-    git_merge = 'iris',
-    git_rename = 'pine',
-    git_stage = 'iris',
-    git_text = 'rose',
-    git_untracked = 'subtle',
-
-    h1 = 'iris',
-    h2 = 'foam',
-    h3 = 'rose',
-    h4 = 'gold',
-    h5 = 'pine',
-    h6 = 'foam',
-  },
-
-  highlight_groups = {
-    -- Comment = { fg = "foam" },
-    -- VertSplit = { fg = "muted", bg = "muted" },
-    Search = { bg = 'gold', fg = 'black' },
-    CurSearch = { bg = 'muted', fg = 'auto' },
-    LocalHighlight = { bg = 'muted', fg = 'auto' },
-  },
-
-  before_highlight = function(group, highlight, palette)
-    -- Disable all undercurls
-    -- if highlight.undercurl then
-    --     highlight.undercurl = false
-    -- end
-    --
-    -- Change palette colour
-    -- if highlight.fg == palette.pine then
-    --     highlight.fg = palette.foam
-    -- end
+  overrides = function(colors) -- add/modify highlights
+    return {}
   end,
+  theme = 'wave', -- Load "wave" theme when 'background' option is not set
+  background = { -- map the value of 'background' option to a theme
+    dark = 'wave', -- try "dragon" !
+    light = 'lotus',
+  },
 }
 
-vim.cmd 'colorscheme rose-pine'
+vim.cmd 'colorscheme kanagawa-dragon'
+
 vim.opt.conceallevel = 1
 
 vim.o.incsearch = true
@@ -1114,6 +1081,11 @@ end, {
 })
 
 vim.o.laststatus = 0
+
+vim.diagnostic.config {
+  virtual_text = false,
+}
+
 local highlight_on = true
 
 vim.keymap.set('n', '<leader>ho', function()
