@@ -782,18 +782,22 @@ require('mason-lspconfig').setup()
 --  If you want to override the default filetypes that your language server will attach to you can
 --  define the property 'filetypes' to the map in question.
 local servers = {
-  pylsp = {},
+  clangd = {},
   cssls = {},
   cssmodules_ls = {},
-  tsserver = {},
+  dockerls = {},
+  eslint = {},
+  html = {},
+  jdtls = {},
+  lua_ls = {},
+  mdx_analyzer = {},
+  pylsp = {},
+  ruff = {},
+  ruff_lsp = {},
   stylelint_lsp = {},
-  clang_format = {},
+  ts_ls = {},
+  yamlls = {},
 
-  -- clangd = {},
-  -- gopls = {},
-  -- pyright = {},
-  -- rust_analyzer = {},
-  -- tsserver = {},
   html = { filetypes = { 'html', 'twig', 'hbs' } },
 
   lua_ls = {
@@ -929,6 +933,7 @@ require('conform').setup {
     json = { { 'prettier', 'prettierd' } },
     vue = { { 'prettier', 'prettierd' } },
     cpp = { 'clang_format' },
+    java = { 'google-java-format' },
 
     -- You can use a function here to determine the formatters dynamically
     python = function(bufnr)
