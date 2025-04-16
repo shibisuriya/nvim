@@ -187,6 +187,11 @@ require('lazy').setup({
         vim.keymap.set('n', 'W', api.tree.collapse_all, opts 'Collapse All')
         vim.keymap.set('n', 'Y', api.fs.copy.relative_path, opts 'Copy Relative Path')
 
+        local function shellescape(str)
+          -- Escape single quotes inside the path and wrap it in single quotes
+          return "'" .. str:gsub("'", "'\\''") .. "'"
+        end
+
         local function get_absolute_path()
           local node = api.tree.get_node_under_cursor()
           local file_type = node.type
@@ -199,7 +204,7 @@ require('lazy').setup({
         end
 
         vim.keymap.set('n', '|', function()
-          local absolute_path = get_absolute_path()
+          local absolute_path = shellescape(get_absolute_path())
           vim.fn.system('tmux split-window -h -c ' .. absolute_path)
         end, opts "Open a vertical tmux pane to the right in the file under cursor's path.")
       end,
