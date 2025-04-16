@@ -934,6 +934,7 @@ require('conform').setup {
     vue = { { 'prettier', 'prettierd' } },
     cpp = { 'clang_format' },
     java = { 'google-java-format' },
+    yaml = { { 'prettier', 'prettierd' } },
 
     -- You can use a function here to determine the formatters dynamically
     python = function(bufnr)
