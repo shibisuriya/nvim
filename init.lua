@@ -48,6 +48,12 @@ vim.g.maplocalleader = ' '
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 
+vim.o.grepprg = 'rg --vimgrep --smart-case'
+vim.o.grepformat = '%f:%l:%c:%m'
+
+vim.keymap.set('n', ']q', ':cnext<CR>')
+vim.keymap.set('n', '[q', ':cprev<CR>')
+
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    https://github.com/folke/lazy.nvim
 --    `:help lazy.nvim.txt` for more info
@@ -787,6 +793,8 @@ require('mason-lspconfig').setup()
 --  If you want to override the default filetypes that your language server will attach to you can
 --  define the property 'filetypes' to the map in question.
 local servers = {
+  tailwindcss = {},
+  bashls = {},
   clangd = {},
   cssls = {},
   cssmodules_ls = {},
@@ -931,15 +939,23 @@ require('conform').setup {
     -- Conform will run multiple formatters sequentially
     go = { 'goimports', 'gofmt' },
     -- Use a sub-list to run only the first available formatter
-    javascript = { { 'prettierd', 'prettier' } },
-    javascriptreact = { { 'prettier', 'prettierd' } },
-    css = { { 'prettier', 'prettierd' } },
-    markdown = { { 'prettier', 'prettierd' } },
-    json = { { 'prettier', 'prettierd' } },
-    vue = { { 'prettier', 'prettierd' } },
+    javascript = { 'prettierd', 'prettier' },
+    typescript = { 'prettierd', 'prettier' },
+    javascriptreact = { 'prettier', 'prettierd' },
+    typescriptreact = { 'prettier', 'prettierd' },
+    css = { 'prettier', 'prettierd' },
+    markdown = { 'prettier', 'prettierd' },
+    json = { 'prettier', 'prettierd' },
+    json5 = { 'prettier', 'prettierd' },
+    vue = { 'prettier', 'prettierd' },
     cpp = { 'clang_format' },
     java = { 'google-java-format' },
-    yaml = { { 'prettier', 'prettierd' } },
+    yaml = { 'prettier', 'prettierd' },
+    yml = { 'prettier', 'prettierd' },
+
+    zsh = { 'beautysh' },
+    sh = { 'beautysh' },
+    xml = { 'xmlformatter' },
 
     -- You can use a function here to determine the formatters dynamically
     python = function(bufnr)
@@ -1109,3 +1125,17 @@ vim.keymap.set('n', '<leader>ho', function()
   end
   highlight_on = not highlight_on -- Toggle the state
 end, { noremap = true, silent = true })
+
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'diff',
+  command = 'setlocal nofoldenable',
+})
+
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'gitcommit',
+  command = 'setlocal nofoldenable',
+})
+
+vim.opt.diffopt = 'horizontal,algorithm:histogram'
+
+vim.keymap.set({ 'n', 'i', 'v' }, '<C-s>', '<Esc>:w<CR>', { silent = true })
