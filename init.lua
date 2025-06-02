@@ -433,6 +433,9 @@ require('lazy').setup({
       require('local-highlight').setup {
         insert_mode = true,
         cw_hlgroup = 'LocalHighlight',
+        animate = {
+          enabled = false,
+        },
       }
     end,
   },
@@ -648,6 +651,7 @@ vim.defer_fn(function()
       'markdown',
       'markdown_inline',
       'json',
+      'nix'
     },
 
     -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
@@ -805,8 +809,8 @@ local servers = {
   lua_ls = {},
   mdx_analyzer = {},
   pylsp = {},
+  nil_ls = {},
   ruff = {},
-  ruff_lsp = {},
   stylelint_lsp = {},
   ts_ls = {},
   yamlls = {},
@@ -952,7 +956,6 @@ require('conform').setup {
     java = { 'google-java-format' },
     yaml = { 'prettier', 'prettierd' },
     yml = { 'prettier', 'prettierd' },
-
     zsh = { 'beautysh' },
     sh = { 'beautysh' },
     xml = { 'xmlformatter' },
