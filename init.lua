@@ -185,65 +185,6 @@ require('lazy').setup({
     },
   },
   {
-    'epwalsh/obsidian.nvim',
-    version = '*', -- recommended, use latest release instead of latest commit
-    lazy = true,
-    ft = 'markdown',
-    -- Replace the above line with this if you only want to load obsidian.nvim for markdown files in your vault:
-    -- event = {
-    --   -- If you want to use the home shortcut '~' here you need to call 'vim.fn.expand'.
-    --   -- E.g. "BufReadPre " .. vim.fn.expand "~" .. "/my-vault/**.md"
-    --   "BufReadPre path/to/my-vault/**.md",
-    --   "BufNewFile path/to/my-vault/**.md",
-    -- },
-    dependencies = {
-      -- Required.
-      'nvim-lua/plenary.nvim',
-
-      -- see below for full list of optional dependencies 👇
-    },
-    templates = {
-      folder = 'templates',
-    },
-    opts = {
-      workspaces = {
-        {
-          name = 'personal',
-          path = '~/Desktop/exit-pod/personal-notes',
-        },
-        {
-          name = 'work',
-          path = '~/Desktop/exit-pod/office-notes',
-        },
-      },
-      ui = {
-        enable = true, -- set to false to disable all additional syntax features
-        update_debounce = 200, -- update delay after a text change (in milliseconds)
-        max_file_length = 5000, -- disable UI features for files with more than this many lines
-        -- Define how various check-boxes are displayed
-        checkboxes = {
-          -- NOTE: the 'char' value has to be a single character, and the highlight groups are defined below.
-          -- [" "] = { char = "- [ ]", hl_group = "ObsidianTodo" },
-          -- ["x"] = { char = "", hl_group = "ObsidianDone" },
-        },
-        bullets = { char = '֎', hl_group = 'ObsidianBullet' },
-        hl_groups = {
-          ObsidianBullet = { bold = true, fg = '#f6c177' },
-          ObsidianTag = { italic = true, fg = '#89ddff' },
-        },
-      },
-      mappings = {
-        -- Overrides the 'gf' mapping to work on markdown/wiki links within your vault.
-        ['gd'] = {
-          action = function()
-            return require('obsidian').util.gf_passthrough()
-          end,
-          opts = { noremap = false, expr = true, buffer = true },
-        },
-      },
-    },
-  },
-  {
     'nvim-tree/nvim-tree.lua',
     opts = {
       on_attach = function(bufnr)
@@ -1016,6 +957,7 @@ require('conform').setup {
     sh = { 'beautysh' },
     xml = { 'xmlformatter' },
     nix = { 'alejandra' },
+    mdx = { 'prettier', 'prettierd' },
 
     -- You can use a function here to determine the formatters dynamically
     python = function(bufnr)
@@ -1141,8 +1083,6 @@ require('kanagawa').setup {
 
 vim.cmd 'colorscheme kanagawa-dragon'
 
-vim.opt.conceallevel = 1
-
 vim.o.incsearch = true
 
 vim.api.nvim_set_keymap('n', '<leader>qq', ':qa!<CR>', { noremap = true, silent = true })
@@ -1199,3 +1139,9 @@ vim.api.nvim_create_autocmd('FileType', {
 vim.opt.diffopt = 'horizontal,algorithm:histogram'
 
 vim.keymap.set({ 'n', 'i', 'v' }, '<C-s>', '<Esc>:w<CR>', { silent = true })
+
+vim.filetype.add {
+  extension = {
+    mdx = 'mdx',
+  },
+}
