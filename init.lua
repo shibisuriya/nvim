@@ -120,6 +120,7 @@ require('lazy').setup({
         'stylua',
         'prettier',
         'prettierd',
+        'alejandra',
         'clangd',
         'cssls',
         'cssmodules_ls',
@@ -1014,6 +1015,7 @@ require('conform').setup {
     zsh = { 'beautysh' },
     sh = { 'beautysh' },
     xml = { 'xmlformatter' },
+    nix = { 'alejandra' },
 
     -- You can use a function here to determine the formatters dynamically
     python = function(bufnr)
